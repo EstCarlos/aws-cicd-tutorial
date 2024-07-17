@@ -3,8 +3,8 @@ import boto3
 
 def handler(event, context):
 
-    path = event['path']
-    if path == '/':
+    path = event['rawPath']
+    if path != '/':
         return {"statusCode": 404, "body": 'Not Found'}
 
     # Get the table name from the environment variable
