@@ -4,6 +4,8 @@ import { Construct } from "constructs";
 import * as dynamo from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as dotenv from "dotenv";
+import { authContext } from "../cdk.context";
+import { createCognitoWithGoogleAuth } from "./auth/cognito";
 
 export class AwsCicdTutorialStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -20,7 +22,7 @@ export class AwsCicdTutorialStack extends cdk.Stack {
       billingMode: dynamo.BillingMode.PAY_PER_REQUEST,
     });
 
-    // region
+    // Region
     const lambdaFunction = new lambda.Function(this, "LambdaFunction", {
       runtime: lambda.Runtime.PYTHON_3_11,
       code: lambda.Code.fromAsset("lambda"),
@@ -45,5 +47,14 @@ export class AwsCicdTutorialStack extends cdk.Stack {
     new cdk.CfnOutput(this, "FunctionUrl", {
       value: functionUrl.url,
     });
+
+    // Region Cognito
+    const CDKContext: authContext = this.node.tryGetContext("auth");
+    const appName = "app-with-google-auth";
+    const auth = createCognitoWithGoogleAuth(this, {
+      appName,
+      google: CDKContext.google,
+    });
+    // endregion
   }
 }
